@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; media-src *; style-src 'self' 'unsafe-inline'; connect-src *">
+<title></title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="frame">
+  <header class="topbar">
+    <div class="logo">S<strong>PLAY</strong></div>
+    <nav>
+      <button class="tab active" data-view="radio" title="Rádio">
+        <span class="ico">
+          <svg xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 24 24" 
+            height="24px" width="24px" 
+            fill="#e3e3e3">
+              <path d="M4,22q-0.82,0-1.41-0.59T2,20V8Q2,7.38 2.34,6.88T3.25,6.15L15.9,1l0.65,1.65L8.3,6H20q0.83,0 1.41,0.59Q22,7.18 22,8V20q0,0.82-0.59,1.41T20,22H4Zm0-2H20V13H4v7Zm5.78-1.73q0.72-0.72 0.72-1.77T9.78,14.73T8,14T6.23,14.73T5.5,16.5t0.73,1.77T8,19t1.78-0.73ZM4,11H16V9h2v2h2V8H4v3Zm0,9V13v7Z"/>
+          </svg>
+        </span><span class="lbl">Rádio</span>
+      </button>
+      
+      <button class="tab" data-view="download" title="Downloads">
+        <span class="ico">
+          <svg xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 24 24" 
+            height="24px" width="24px" 
+            fill="#e3e3e3">
+            <path d="M6,21V19l1-1H4q-0.82,0-1.41-0.59T2,16V5Q2,4.17 2.59,3.59T4,3h8V5H4V16H20V13h2v3q0,0.82-0.59,1.41T20,18H17l1,1v2H6Zm9-6l-5-5l1.4-1.4L14,11.18V3h2v8.17L18.6,8.6L20,10l-5,5Z"/>
+          </svg>
+        </span><span class="lbl">Downloads</span></button>
+    </nav>
+    <button class="user" id="closeBtn" title="Fechar o aplicativo">
+      <span class="avatar">
+          <svg xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 24 24" 
+            height="24px" width="24px" 
+            fill="#000">
+              <path d="M5,21q-0.83,0-1.41-0.59T3,19V15H5v4H19V5H5V9H3V5Q3,4.17 3.59,3.59T5,3H19q0.83,0 1.41,0.59T21,5V19q0,0.82-0.59,1.41T19,21H5Zm5.5-4L9.1,15.55L11.65,13H3V11h8.65L9.1,8.45L10.5,7l5,5l-5,5Z"/>
+          </svg>
+      </span>
+      <div>
+        <b>Sair</b>
+        <!-- <small>v0.1</small> -->
+      </div>
+    </button>
+  </header>
+
+  <main>
+    <!-- RÁDIO -->
+    <section id="view-radio" class="view active">
+      <div class="content">
+        <div class="head">
+          <h1 style="display:flex; align-items: center; gap: 12px">Estações 
+            <svg xmlns="http://www.w3.org/2000/svg" 
+              viewBox="0 0 24 24" 
+              height="42px" width="42px" 
+              fill="#e3e3e3">
+              <path d="M4.9,17.1q-1.43-1.5-2.16-3.33T2,10T2.74,6.22T4.9,2.9L6.1,4.1Q4.9,5.3 4.3,6.86Q3.7,8.42 3.7,10t0.6,3.14T6.1,15.9L4.9,17.1Zm2.4-2.4q-0.98-0.97-1.49-2.2Q5.3,11.27 5.3,10T5.81,7.5Q6.33,6.27 7.3,5.3L8.5,6.5Q7.75,7.18 7.38,8.1T7,10q0,0.9 0.38,1.82T8.5,13.5L7.3,14.7ZM7,22l3.38-10.13q-0.4-0.35-0.64-0.83T9.5,10q0-1.05 0.73-1.78T12,7.5t1.78,0.72T14.5,10q0,0.57-0.24,1.05t-0.64,0.83L17,22H15l-0.65-2H9.68L9,22H7Zm3.33-4h3.35L12,13l-1.67,5Zm6.37-3.3l-1.2-1.2q0.75-0.68 1.13-1.6Q17,10.98 17,10q0-0.9-0.38-1.83T15.5,6.5l1.2-1.2q0.98,0.97 1.45,2.2T18.7,10q0,1.27-0.51,2.5T16.7,14.7Zm2.4,2.4l-1.2-1.2q1.2-1.2 1.8-2.76T20.3,10q0-1.58-0.6-3.14T17.9,4.1l1.2-1.2q1.43,1.5 2.16,3.32T22,10t-0.7,3.77T19.1,17.1Z"/>
+            </svg>
+          </h1>
+          <input id="search" class="search" placeholder="Buscar rádio ou gênero">
+        </div>
+        <div id="grid" class="grid"></div>
+      </div>
+      <aside class="side">
+        <h2 style="display:flex; align-items: center; justify-content: center; gap: 10px">
+          Tocando 
+          <svg xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 24 24" 
+            height="32px" width="32px" 
+            fill="#e3e3e3">
+            <path d="M8.5,11ZM4,20q-0.82,0-1.41-0.59T2,18V4Q2,3.17 2.59,2.59T4,2h9q0.83,0 1.41,0.59T15,4V8.05Q14.48,8.1 13.98,8.24Q13.48,8.38 13,8.57V4H4V18H8v2H4Zm4-3.02V16q0-0.28 0.01-0.54t0.06-0.54Q7.6,14.8 7.3,14.4T7,13.5q0-0.63 0.44-1.06T8.5,12q0.13,0 0.25,0.02T9,12.1q0.25-0.45 0.56-0.86t0.66-0.79q-0.38-0.22-0.81-0.34Q8.98,10 8.5,10q-1.45,0-2.47,1.02T5,13.5q0,1.35 0.86,2.31T8,16.98ZM9.56,8.06Q10,7.63 10,7T9.56,5.94T8.5,5.5T7.44,5.94T7,7T7.44,8.06T8.5,8.5T9.56,8.06ZM14,22H12q-0.82,0-1.41-0.59T10,20V16q0-2.5 1.75-4.25T16,10t4.25,1.75T22,16v4q0,0.82-0.59,1.41T20,22H18V17h2.5V16q0-1.88-1.31-3.19T16,11.5t-3.19,1.31T11.5,16v1H14v5Z"/>
+          </svg>
+        </h2>
+        <div class="now">
+          <div class="disc" id="disc"><span id="nowEmoji">📻</span></div>
+          <h3 id="nowName">Escolha uma rádio</h3>
+          <span class="pill" id="nowStatus">parado</span>
+          <div class="controls">
+            <button id="btnPlay" class="round">▶</button>
+          </div>
+          <label class="vol">🔈 <input id="volume" type="range" min="0" max="1" step="0.01" value="0.8"></label>
+        </div>
+        <h2 class="small">Favoritas ❤️</h2>
+        <ul id="favs" class="favs"></ul>
+      </aside>
+    </section>
+
+    <!-- DOWNLOADS -->
+    <section id="view-download" class="view">
+      <div class="content">
+        <div class="head"><h1>Baixar música ⬇️</h1></div>
+        <div class="panel">
+          <input id="url" class="field" placeholder="Cole o link do YouTube aqui">
+          <div class="row">
+            <select id="format" class="field short">
+              <option value="mp3">MP3</option><option value="m4a">M4A</option><option value="opus">OPUS</option>
+            </select>
+            <button id="folderBtn" class="field folder" title="Alterar pasta">📁 <span id="folderLabel">...</span></button>
+            <button id="dlBtn" class="primary">Baixar</button>
+          </div>
+        </div>
+        <div id="jobs" class="jobs"></div>
+      </div>
+      <aside class="side"><h2>Dica 💡</h2>
+        <p class="tip">Cole o link de um vídeo e escolha o formato. O áudio é extraído com <b>yt-dlp</b> e convertido com <b>ffmpeg</b>, ambos embutidos no app.</p>
+      </aside>
+    </section>
+  </main>
+</div>
+
+<dialog id="stDlg">
+  <h3 id="dlgTitle">Nova rádio</h3>
+  <div class="imgpick">
+    <div class="thumb" id="thumb">📻</div>
+    <div class="col"><button id="imgBtn" class="ghost">🖼️ Escolher imagem</button><button id="imgClear" class="ghost">Remover imagem</button></div>
+    <input type="file" id="imgFile" accept="image/*" hidden>
+  </div>
+  <input id="stName" class="field" placeholder="Nome">
+  <input id="stGenre" class="field" placeholder="Gênero (opcional)">
+  <input id="stUrl" class="field" placeholder="URL do stream (http/https)">
+  <div class="row end"><button id="stDelete" class="ghost danger">Excluir</button><span class="grow"></span><button id="stCancel" class="ghost">Cancelar</button><button id="stOk" class="primary">Salvar</button></div>
+</dialog>
+<script src="renderer.js"></script>
+</body>
+</html>

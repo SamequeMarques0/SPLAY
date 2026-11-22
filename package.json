@@ -1,0 +1,33 @@
+{
+  "name": "splay",
+  "version": "0.1.2",
+  "description": "Rádio online & downloader de músicas",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^45.4.1",
+    "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "com.splay.app",
+    "productName": "SPLAY",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "bin",
+        "to": "bin",
+        "filter": ["**/**"]
+      }
+    ]
+  }
+}
