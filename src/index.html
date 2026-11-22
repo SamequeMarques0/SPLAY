@@ -122,11 +122,14 @@
   <div class="imgpick">
     <div class="thumb" id="thumb">📻</div>
     <div class="col">
-      <button id="imgBtn" class="ghost" type="button">🖼️ Escolher imagem</button>
+      <button id="imgBtn" class="ghost" type="button">🖼️ Enviar imagem</button>
+      <button id="imgFetchBtn" class="ghost" type="button">🌐 Buscar logo online</button>
       <button id="imgClear" class="ghost" type="button">Remover imagem</button>
     </div>
     <input type="file" id="imgFile" accept="image/*" hidden>
   </div>
+  <label class="sr-only" for="stImageUrl">URL da imagem/logo</label>
+  <input id="stImageUrl" class="field" placeholder="URL da logo/imagem (opcional)" inputmode="url">
   <label class="sr-only" for="stName">Nome da rádio</label>
   <input id="stName" class="field" placeholder="Nome">
   <label class="sr-only" for="stGenre">Gênero</label>

@@ -1,4 +1,4 @@
-﻿import { loadJSON, saveJSON, sanitizeFavs, sanitizeStations, isQuotaError } from './storage.js';
+import { loadJSON, saveJSON, sanitizeFavs, sanitizeStations, isQuotaError } from './storage.js';
 
 const DEFAULTS = [
   { id: '94.1', name: 'Gazeta 94.1 FM', genre: 'Tá todo mundo ligado!', emoji: '📻', url: 'https://virtues.live:8144/stream?1795306735490' },
@@ -132,16 +132,21 @@ export function initRadio(root, { notify }) {
   search.addEventListener('input', renderGrid);
 
   grid.addEventListener('click', (e) => {
-    if (e.target.closest('#addCard')) return openDialog(null);
+    const add = e.target.closest('#addCard');
+    if (add) { e.preventDefault(); return openDialog(null); }
     const fav = e.target.closest('[data-fav]');
     if (fav) {
+      e.preventDefault(); e.stopPropagation();
       const id = fav.dataset.fav;
       if (favs.has(id)) favs.delete(id); else favs.add(id);
       persistFavs();
       return renderGrid();
     }
     const ed = e.target.closest('[data-edit]');
-    if (ed) return openDialog(stations.find((s) => s.id === ed.dataset.edit) || null);
+    if (ed) {
+      e.preventDefault(); e.stopPropagation();
+      return openDialog(stations.find((s) => s.id === ed.dataset.edit) || null);
+    }
     const card = e.target.closest('.card[data-id]');
     if (card) playStation(stations.find((s) => s.id === card.dataset.id));
   });
@@ -152,7 +157,7 @@ export function initRadio(root, { notify }) {
   });
 
   function setThumb() {
-    byId(root, 'thumb').innerHTML = draftImage ? `<img src="${draftImage}" alt="Prévia da imagem">` : `<span aria-hidden="true">${esc(editing?.emoji || '📻')}</span>`;
+    byId(root, 'thumb').innerHTML = draftImage ? `<img src="${draftImage}" alt="Prévia da imagem">` : `<span aria-hidden="true">📻</span>`;
   }
 
   function openDialog(s) {
@@ -162,25 +167,28 @@ export function initRadio(root, { notify }) {
     byId(root, 'stName').value = s?.name || '';
     byId(root, 'stGenre').value = s?.genre || '';
     byId(root, 'stUrl').value = s?.url || '';
+    byId(root, 'stImageUrl').value = (s?.image && /^https?:\/\//i.test(s.image)) ? s.image : '';
     byId(root, 'stDelete').style.display = s ? '' : 'none';
     setThumb();
     dlg.showModal();
   }
 
-  async function fileToDataURL(file) {
-    if (!file || !file.type.startsWith('image/')) throw new Error('Arquivo inválido');
-    if (file.size > 2 * 1024 * 1024) throw new Error('Imagem muito grande (máx. 2MB)');
-    const dataUrl = await new Promise((resolve, reject) => {
+  function blobToDataURL(blob) {
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result);
       reader.onerror = () => reject(new Error('Falha ao ler imagem'));
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(blob);
     });
+  }
+
+  async function imageSourceToDataURL(src, maxBytes = 2 * 1024 * 1024) {
     const img = await new Promise((resolve, reject) => {
       const el = new Image();
+      el.crossOrigin = 'anonymous';
       el.onload = () => resolve(el);
-      el.onerror = () => reject(new Error('Imagem inválida'));
-      el.src = dataUrl;
+      el.onerror = () => reject(new Error('Imagem inválida ou bloqueada por CORS'));
+      el.src = src;
     });
     const size = 192;
     const canvas = document.createElement('canvas');
@@ -188,28 +196,106 @@ export function initRadio(root, { notify }) {
     const ctx = canvas.getContext('2d');
     const m = Math.min(img.width, img.height);
     ctx.drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, size, size);
-    return canvas.toDataURL('image/webp', 0.82);
+    const dataUrl = canvas.toDataURL('image/webp', 0.82);
+    if (dataUrl.length > 350000) throw new Error('Imagem muito grande após processamento.');
+    return dataUrl;
+  }
+
+  async function fileToDataURL(file) {
+    if (!file || !file.type.startsWith('image/')) throw new Error('Arquivo inválido');
+    if (file.size > maxBytesDefault()) throw new Error('Imagem muito grande (máx. 2MB)');
+    const dataUrl = await blobToDataURL(file);
+    return imageSourceToDataURL(dataUrl);
+  }
+  function maxBytesDefault(){ return 2 * 1024 * 1024; }
+
+  async function fetchLogoFromUrl(url) {
+    if (!/^https?:\/\//i.test(url)) throw new Error('Informe uma URL de imagem válida (http/https).');
+    const res = await fetch(url, { mode: 'cors' });
+    if (!res.ok) throw new Error(`Falha ao baixar imagem (HTTP ${res.status}).`);
+    const blob = await res.blob();
+    if (!blob.type.startsWith('image/')) throw new Error('A URL não retornou uma imagem.');
+    if (blob.size > maxBytesDefault()) throw new Error('Imagem muito grande (máx. 2MB).');
+    const dataUrl = await blobToDataURL(blob);
+    return imageSourceToDataURL(dataUrl);
+  }
+
+  async function fetchLogoAuto() {
+    const manual = byId(root, 'stImageUrl').value.trim();
+    if (manual) return { dataUrl: await fetchLogoFromUrl(manual), sourceUrl: manual };
+
+    const name = byId(root, 'stName').value.trim();
+    const stream = byId(root, 'stUrl').value.trim();
+    const candidates = [];
+
+    // 1) Radio Browser API by name (public directory, often has favicon)
+    if (name) {
+      const endpoint = `https://de1.api.radio-browser.info/json/stations/byname/${encodeURIComponent(name)}?limit=5&hidebroken=true`;
+      try {
+        const r = await fetch(endpoint);
+        if (r.ok) {
+          const items = await r.json();
+          for (const it of Array.isArray(items) ? items : []) {
+            if (it?.favicon && /^https?:\/\//i.test(it.favicon)) candidates.push(it.favicon);
+          }
+        }
+      } catch {}
+    }
+
+    // 2) Fallback: favicon from stream origin
+    try {
+      if (stream) candidates.push(`${new URL(stream).origin}/favicon.ico`);
+    } catch {}
+
+    const uniq = [...new Set(candidates)];
+    let lastErr = null;
+    for (const url of uniq) {
+      try { return { dataUrl: await fetchLogoFromUrl(url), sourceUrl: url }; }
+      catch (e) { lastErr = e; }
+    }
+    throw lastErr || new Error('Não encontrei logo automaticamente. Tente colar a URL da imagem.');
   }
 
   byId(root, 'imgBtn').addEventListener('click', () => byId(root, 'imgFile').click());
   byId(root, 'imgFile').addEventListener('change', async (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    try { draftImage = await fileToDataURL(f); setThumb(); }
+    try { draftImage = await fileToDataURL(f); setThumb(); notify('Imagem carregada.', 'info'); }
     catch (err) { notify(err.message || 'Não foi possível carregar a imagem.', 'error'); }
     e.target.value = '';
   });
-  byId(root, 'imgClear').addEventListener('click', () => { draftImage = null; setThumb(); });
+
+  byId(root, 'imgFetchBtn').addEventListener('click', async () => {
+    const btn = byId(root, 'imgFetchBtn');
+    btn.disabled = true; btn.textContent = 'Buscando...';
+    try {
+      const { dataUrl, sourceUrl } = await fetchLogoAuto();
+      draftImage = dataUrl;
+      if (/^https?:\/\//i.test(sourceUrl)) byId(root, 'stImageUrl').value = sourceUrl;
+      setThumb();
+      notify('Logo carregada da internet.', 'info');
+    } catch (err) {
+      notify(err.message || 'Não foi possível buscar a logo. Tente enviar a imagem manualmente.', 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = '🌐 Buscar logo online';
+    }
+  });
+
+  byId(root, 'imgClear').addEventListener('click', () => { draftImage = null; byId(root, 'stImageUrl').value = ''; setThumb(); });
   byId(root, 'stCancel').addEventListener('click', () => dlg.close());
 
   byId(root, 'stOk').addEventListener('click', () => {
     const name = byId(root, 'stName').value.trim();
     const url = byId(root, 'stUrl').value.trim();
     const genre = byId(root, 'stGenre').value.trim();
+    const imageUrl = byId(root, 'stImageUrl').value.trim();
     if (!name) return notify('Informe o nome da rádio.', 'warn');
     if (!/^https?:\/\//i.test(url)) return notify('Informe uma URL de stream válida (http/https).', 'warn');
+    if (imageUrl && !/^https?:\/\//i.test(imageUrl)) return notify('URL da imagem inválida (use http/https).', 'warn');
 
-    const data = { name, url, genre, image: draftImage };
+    // If user pasted an image URL but didn't click fetch, keep it as image (browser can load it directly).
+    const image = draftImage || (imageUrl || null);
+    const data = { name, url, genre, image, emoji: '📻' };
     if (editing) {
       Object.assign(editing, data);
       if (current?.id === editing.id) {
@@ -217,7 +303,7 @@ export function initRadio(root, { notify }) {
         if (audio.src !== url) { audio.src = url; if (!audio.paused) audio.play().catch(() => setStatus('erro ao tocar', false)); }
       }
     } else {
-      stations.push({ id: `c${Date.now()}`, emoji: '⭐', ...data });
+      stations.push({ id: `c${Date.now()}`, ...data });
     }
     persistStations();
     dlg.close();

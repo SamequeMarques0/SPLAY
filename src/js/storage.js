@@ -25,8 +25,9 @@ export function sanitizeStation(raw, defaults = {}) {
   const url = typeof raw?.url === 'string' ? raw.url.trim() : '';
   const genre = typeof raw?.genre === 'string' ? raw.genre.trim() : '';
   const emoji = typeof raw?.emoji === 'string' && raw.emoji ? raw.emoji : (defaults.emoji || '📻');
-  const image = typeof raw?.image === 'string' && raw.image.startsWith('data:image/') && raw.image.length <= MAX_IMAGE_DATA_URL_LENGTH
-    ? raw.image
+  const rawImage = typeof raw?.image === 'string' ? raw.image.trim() : '';
+  const image = (rawImage.startsWith('data:image/') && rawImage.length <= MAX_IMAGE_DATA_URL_LENGTH) || /^https?:\/\//i.test(rawImage)
+    ? rawImage
     : null;
   if (!id || !name || !/^https?:\/\//i.test(url)) return null;
   return { id, name, url, genre, emoji, image };

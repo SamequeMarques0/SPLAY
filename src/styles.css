@@ -31,7 +31,7 @@ h1{font-size:34px}
 .card .art{position:absolute;right:14px;top:14px;width:84px;height:84px;border-radius:20px;object-fit:cover;display:grid;place-items:center;font-size:60px}
 .card h4{font-size:20px;line-height:1.1}.card small{color:var(--muted)}
 .card .strip{padding:12px 18px;display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#111}
-.card .acts{position:absolute;left:12px;top:10px;display:flex;gap:2px}
+.card .acts{position:absolute;left:12px;top:10px;display:flex;gap:2px;z-index:5}
 .card .acts button{background:none;border:0;font-size:17px;cursor:pointer;padding:4px;opacity:.85}
 .card .acts button:hover{opacity:1;transform:scale(1.15)}
 .card.playing{background:var(--lilac);color:#111}.card.playing small{color:#555}
