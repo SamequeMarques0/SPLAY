@@ -1,6 +1,6 @@
 {
   "name": "splay",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "description": "Rádio online & downloader de músicas",
   "main": "main.js",
   "scripts": {
