@@ -94,7 +94,26 @@
     <!-- DOWNLOADS -->
     <section id="view-download" class="view">
       <div class="content">
-        <div class="head"><h1>Baixar música ⬇️</h1></div>
+        <div class="head">
+          <h1 style="display:flex; align-items:center; justify-content:center; gap: 10px">Baixar música 
+          <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="34" height="34" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-width="2" 
+                stroke-linecap="round" 
+                stroke-linejoin="round" 
+                class="lucide lucide-cloud-sync preview-icon">
+                  <path d="m17 18-1.535 1.605a5 5 0 0 1-8-1.5"/>
+                  <path d="M17 22v-4h-4"/>
+                  <path d="M20.996 15.251A4.5 4.5 0 0 0 17.495 8h-1.79a7 7 0 1 0-12.709 5.607"/>
+                  <path d="M7 10v4h4"/>
+                  <path d="m7 14 1.535-1.605a5 5 0 0 1 8 1.5"/>
+              </svg>
+        </h1>
+        </div>
         <div class="panel">
           <label class="sr-only" for="url">URL do vídeo</label>
           <input id="url" class="field" placeholder="Cole o link do YouTube ou outro vídeo (http/https)" autocomplete="off" inputmode="url">
@@ -110,7 +129,23 @@
         </div>
         <div id="jobs" class="jobs" aria-live="polite"></div>
       </div>
-      <aside class="side"><h2>Dica 💡</h2>
+      <aside class="side">
+        <h2 style="display:flex; align-items:center; justify-content:center; gap: 10px">
+          Dica 
+          <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="32" height="32" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              stroke-width="2" 
+              troke-linecap="round" 
+              stroke-linejoin="round" 
+              class="lucide lucide-quote preview-icon">
+              <path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/>
+              <path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/>
+            </svg>
+        </h2>
         <p class="tip">Cole o link de um vídeo e escolha o formato. O áudio é extraído com <b>yt-dlp</b> e convertido com <b>ffmpeg</b>, ambos embutidos no app.</p>
       </aside>
     </section>
@@ -120,7 +155,7 @@
 <dialog id="stDlg">
   <h3 id="dlgTitle">Nova rádio</h3>
   <div class="imgpick">
-    <div class="thumb" id="thumb">📻</div>
+    <div class="thumb" id="thumb"></div>
     <div class="col">
       <button id="imgBtn" class="ghost" type="button">🖼️ Enviar imagem</button>
       <button id="imgFetchBtn" class="ghost" type="button">🌐 Buscar logo online</button>
